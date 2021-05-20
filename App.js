@@ -14,6 +14,7 @@ export default function App() {
   const BUSSTOP_URL = "https://arrivelah2.busrouter.sg/?id=03501";
 
   function loadBusStopData() {
+    setLoading(true);
     fetch(BUSSTOP_URL)
       .then((response) => {
         return response.json();
@@ -29,7 +30,8 @@ export default function App() {
       });
   }
   useEffect(() => {
-    loadBusStopData();
+    const interval = setInterval(loadBusStopData, 5000);
+    return () => clearInterval(interval);
   }, []);
 
   function refreshBusStopData() {}
