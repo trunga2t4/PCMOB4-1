@@ -1,12 +1,13 @@
 import { StatusBar } from "expo-status-bar";
-import React from "react";
+import React, { useState } from "react";
 import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 
 export default function App() {
+  const [loading, setLoading] = useState(false);
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Bus arrival time:</Text>
-      <Text style={styles.timing}>Loading...</Text>
+      <Text style={styles.timing}>{loading ? "Loading..." : "Loaded"}</Text>
       <TouchableOpacity style={styles.button}>
         <Text style={styles.buttonText}>Refresh!</Text>
       </TouchableOpacity>
