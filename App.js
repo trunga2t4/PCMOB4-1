@@ -10,6 +10,7 @@ import {
 
 export default function App() {
   const [loading, setLoading] = useState(true);
+  const [arrival, setArrival] = useState();
   const BUSSTOP_URL = "https://arrivelah2.busrouter.sg/?id=03501";
 
   function loadBusStopData() {
@@ -23,6 +24,8 @@ export default function App() {
         )[0];
         console.log("My Bus data");
         console.log(myBus);
+        setArrival(myBus.next.time);
+        setLoading(false);
       });
   }
   useEffect(() => {
@@ -35,7 +38,7 @@ export default function App() {
     <View style={styles.container}>
       <Text style={styles.title}>Bus arrival time:</Text>
       <Text style={styles.timing}>
-        {loading ? <ActivityIndicator size="large" color="orange" /> : "Loaded"}
+        {loading ? <ActivityIndicator size="large" color="orange" /> : arrival}
       </Text>
       <TouchableOpacity style={styles.button} onPress={refreshBusStopData}>
         <Text style={styles.buttonText}>Refresh!</Text>
