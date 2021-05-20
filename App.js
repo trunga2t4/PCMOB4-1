@@ -18,7 +18,11 @@ export default function App() {
         return response.json();
       })
       .then((responseData) => {
-        console.log(responseData);
+        const myBus = responseData.services.filter(
+          (item) => item.no === "97"
+        )[0];
+        console.log("My Bus data");
+        console.log(myBus);
       });
   }
   useEffect(() => {
