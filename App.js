@@ -11,26 +11,78 @@ import {
 export default function App() {
   const [loading, setLoading] = useState(true);
   const [arrival, setArrival] = useState();
+  const [available, setAvailable] = useState(false);
+  const [arrival2, setArrival2] = useState();
+  const [duration, setDuration] = useState();
+  const [bus, setBus] = useState("97");
   const BUSSTOP_URL = "https://arrivelah2.busrouter.sg/?id=03501";
 
   function loadBusStopData() {
+    /* fetch("https://api.data.gov.sg/v1/environment/2-hour-weather-forecast")
+      .then((response) => {
+        return response.json();
+      })
+      .then((responseData) => {
+        console.log(responseData);
+      });
+      */
+
     setLoading(true);
     fetch(BUSSTOP_URL)
       .then((response) => {
         return response.json();
       })
       .then((responseData) => {
-        const myBus = responseData.services.filter(
-          (item) => item.no === "97"
-        )[0];
-        console.log("My Bus data");
-        console.log(myBus);
-        setArrival(myBus.next.time);
-        setLoading(false);
+        if (responseData.services.length != 0) {
+          const myBus = responseData.services.filter(
+            (item) => item.no === bus
+          )[0];
+          console.log("My Bus data");
+          console.log(responseData.services);
+
+          if (myBus.next.time != []) {
+            let localTime = new Date(myBus.next.time).toLocaleTimeString(
+              "en-US"
+            );
+            setArrival(localTime);
+
+            if (myBus.next.duration_ms > 0) {
+              let durationInS = Math.round(myBus.next.duration_ms / 1000);
+              let durationInM = Math.round((durationInS - 30) / 60);
+              durationInS = durationInS - durationInM * 60;
+              setDuration(`(in ${durationInM}m ${durationInS}s)`);
+            } else {
+              setDuration("Bus Arrived");
+            }
+          } else {
+            setArrival("No Est. Available");
+            setDuration("No Est. Available");
+          }
+
+          if (myBus.next2.time != []) {
+            let localTime2 = new Date(myBus.next2.time).toLocaleTimeString(
+              "en-US"
+            );
+            setArrival2(`Next arrival: ${localTime2}`);
+          } else {
+            setArrival2("No Est. Available");
+          }
+
+          setLoading(false);
+          setAvailable(true);
+        } else {
+          console.log("My Bus data");
+          console.log(`Bus ${bus} Not In Operation`);
+          setArrival(`Not In Operation`);
+          setArrival2("Not In Operation");
+          setDuration("No Est. Available");
+          setLoading(false);
+          setAvailable(false);
+        }
       });
   }
   useEffect(() => {
-    const interval = setInterval(loadBusStopData, 5000);
+    const interval = setInterval(loadBusStopData, 10000);
     return () => clearInterval(interval);
   }, []);
 
@@ -38,11 +90,17 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Bus arrival time:</Text>
+      <Text style={styles.title}>{`Bus ${bus} arrival time:`}</Text>
       <Text style={styles.timing}>
         {loading ? <ActivityIndicator size="large" color="orange" /> : arrival}
       </Text>
-      <TouchableOpacity style={styles.button} onPress={refreshBusStopData}>
+      <Text style={styles.timing3}>
+        {loading ? <ActivityIndicator size="large" color="orange" /> : duration}
+      </Text>
+      <Text style={styles.timing2}>
+        {loading ? <ActivityIndicator size="small" color="blue" /> : arrival2}
+      </Text>
+      <TouchableOpacity style={styles.button} onPress={loadBusStopData}>
         <Text style={styles.buttonText}>Refresh!</Text>
       </TouchableOpacity>
     </View>
@@ -65,12 +123,23 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 32,
+    textAlign: "center",
   },
   timing: {
-    fontSize: 64,
+    fontSize: 48,
+    textAlign: "center",
+  },
+  timing3: {
+    fontSize: 32,
+    textAlign: "center",
+  },
+  timing2: {
+    fontSize: 16,
+    textAlign: "center",
   },
   buttonText: {
     fontSize: 32,
     color: "white",
+    textAlign: "center",
   },
 });
